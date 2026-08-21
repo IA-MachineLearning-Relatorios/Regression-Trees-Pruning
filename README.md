@@ -249,57 +249,28 @@ O resultado é particularmente interessante porque a poda reduziu significativam
 
 ---
 
-# 12. Próxima Etapa — Investigação dos Erros
+## 12. Investigação dos Erros e Diagnóstico Final
 
-Apesar dos resultados positivos, a análise ainda não está encerrada.
-
-O próximo passo será investigar **por que o RMSE (US$ 7.048) é muito maior que o MAE (US$ 3.009)**.
-
-Serão realizadas:
+Para entender a discrepância entre o RMSE (US$ 7.048) e o MAE (US$ 3.009), realizamos uma análise profunda dos resíduos do modelo Pós-pruning.
 
 ### 12.1 Real vs. Predito
+A plotagem gráfica revelou que a grande massa de previsões acompanha quase perfeitamente a linha ideal de acerto. No entanto, existem pontos isolados (outliers de alto valor) que se desviam drasticamente, caindo abaixo da linha de previsão.
+<img width="855" height="548" alt="scatter" src="https://github.com/user-attachments/assets/79b2083e-f3cf-4add-b518-0ca804a79ca4" />
 
-Construção de um gráfico comparando:
 
-```text
-Preço Real × Preço Predito
-```
+### 12.2 Distribuição dos Resíduos
+O histograma de resíduos confirmou o diagnóstico. Embora o erro esteja perfeitamente centralizado no zero para a maioria absoluta dos veículos, a distribuição apresenta uma longa cauda à direita (resíduos positivos).
+<img width="866" height="547" alt="histograma" src="https://github.com/user-attachments/assets/4226ed17-a2fa-4890-abb7-5314522b930f" />
 
-O objetivo será verificar visualmente onde o modelo consegue acompanhar os preços e onde começa a apresentar desvios maiores.
-
-### 12.2 Análise dos Resíduos
-
-Será calculado:
-
-```text
-resíduo = preço_real - preço_predito
-```
-
-e analisada sua distribuição.
-
-### 12.3 Identificação dos maiores erros
-
-Serão identificados os veículos nos quais o modelo apresentou os maiores erros absolutos.
-
-A investigação buscará responder:
-
-* Existem outliers?
-* Existem veículos muito caros que o modelo não consegue prever?
-* Existem padrões nos erros?
-* O modelo subestima ou superestima determinados veículos?
-* Quais características estão associadas aos maiores erros?
+### 12.3 Os Maiores Erros
+O isolamento dos 5 maiores erros absolutos provou matematicamente a falha visual. O maior erro do dataset ocorreu em um veículo de luxo:
+* **Preço Real:** US$ 643.330
+* **Preço Predito:** US$ 450.000
+* **Erro Absoluto:** US$ 193.330
 
 ### 12.4 Diagnóstico Final
+O modelo apresenta uma forte tendência a **subestimar veículos de altíssimo luxo**. Devido à natureza geométrica das Árvores de Decisão, quando um carro de alto padrão cai em um nó folha junto com carros tecnicamente semelhantes (mas sem o mesmo valor agregado de marca/exclusividade), o algoritmo calcula a média do grupo, puxando o preço do veículo de luxo agressivamente para baixo. Esse comportamento é o responsável por inflar o RMSE.
 
-A partir dessa análise será possível determinar se o alto RMSE é causado por:
-
-* poucos erros extremos;
-* outliers no preço;
-* segmentos específicos de veículos;
-* limitações da árvore;
-* ou características que o dataset não representa adequadamente.
-
-Somente depois dessa investigação será feita a conclusão definitiva sobre a qualidade do modelo.
 
 ---
 
